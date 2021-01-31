@@ -53,7 +53,7 @@ export const app = new Vue({
 
   data() {
     return {
-      meetup: {}
+      rawMeetup: null
     };
   },
 
@@ -62,14 +62,37 @@ export const app = new Vue({
   },
 
   computed: {
-    //
+    meetup() {
+      if (!this.rawMeetup) {
+        return null;
+      }
+
+      return {
+        ...this.rawMeetup,
+        localDate: new Date(this.rawMeetup.date).toLocaleString(navigator.language, {
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        }),
+        dateOnlyString: new Date(this.rawMeetup.date).toISOString().split("T")[0],
+        coverStyle: this.rawMeetup.imageId
+          ? {
+            "--bg-url": `url(${getMeetupCoverLink(this.rawMeetup)})`
+          }
+          : undefined,
+        agenda: this.rawMeetup.agenda.map((agenda) => ({
+          ...agenda,
+          imageSrc: `/assets/icons/icon-${this.getAgendaItemIcons(agenda.type)}.svg`
+        }))
+      };
+    }
   },
 
   methods: {
     getMeetupData() {
       fetch(getMeetupByIDLink(MEETUP_ID))
         .then((response) => response.json())
-        .then((data) => (this.meetup = data))
+        .then((data) => (this.rawMeetup = data))
         .catch(this.errorHandler);
     },
     errorHandler(e) {
@@ -80,13 +103,6 @@ export const app = new Vue({
     },
     getAgendaItemIcons(type) {
       return agendaItemIcons[type];
-    },
-    formatDate(date) {
-      return new Date(date).toDateString(navigator.language, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-    },
-  },
+    }
+  }
 });
