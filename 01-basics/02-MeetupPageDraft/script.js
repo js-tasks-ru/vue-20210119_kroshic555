@@ -1,7 +1,7 @@
-import Vue from './vue.esm.browser.js';
+import Vue from "./vue.esm.browser.js";
 
 /** URL адрес API */
-const API_URL = 'https://course-vue.javascript.ru/api';
+const API_URL = "https://course-vue.javascript.ru/api";
 
 /** ID митапа для примера; используйте его при получении митапа */
 const MEETUP_ID = 6;
@@ -15,18 +15,22 @@ function getMeetupCoverLink(meetup) {
   return `${API_URL}/images/${meetup.imageId}`;
 }
 
+function getMeetupByIDLink(id) {
+  return `${API_URL}/meetups/${id}`;
+}
+
 /**
  * Словарь заголовков по умолчанию для всех типов элементов программы
  */
 const agendaItemTitles = {
-  registration: 'Регистрация',
-  opening: 'Открытие',
-  break: 'Перерыв',
-  coffee: 'Coffee Break',
-  closing: 'Закрытие',
-  afterparty: 'Afterparty',
-  talk: 'Доклад',
-  other: 'Другое',
+  registration: "Регистрация",
+  opening: "Открытие",
+  break: "Перерыв",
+  coffee: "Coffee Break",
+  closing: "Закрытие",
+  afterparty: "Afterparty",
+  talk: "Доклад",
+  other: "Другое"
 };
 
 /**
@@ -34,33 +38,71 @@ const agendaItemTitles = {
  * Соответствует имени иконок в директории /assets/icons
  */
 const agendaItemIcons = {
-  registration: 'key',
-  opening: 'cal-sm',
-  talk: 'tv',
-  break: 'clock',
-  coffee: 'coffee',
-  closing: 'key',
-  afterparty: 'cal-sm',
-  other: 'cal-sm',
+  registration: "key",
+  opening: "cal-sm",
+  talk: "tv",
+  break: "clock",
+  coffee: "coffee",
+  closing: "key",
+  afterparty: "cal-sm",
+  other: "cal-sm"
 };
 
 export const app = new Vue({
-  el: '#app',
+  el: "#app",
 
-  data: {
-    //
+  data() {
+    return {
+      rawMeetup: null
+    };
   },
 
   mounted() {
-    // Требуется получить данные митапа с API
+    this.getMeetupData();
   },
 
   computed: {
-    //
+    meetup() {
+      if (!this.rawMeetup) {
+        return null;
+      }
+
+      return {
+        ...this.rawMeetup,
+        localDate: new Date(this.rawMeetup.date).toLocaleString(navigator.language, {
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        }),
+        dateOnlyString: new Date(this.rawMeetup.date).toISOString().split("T")[0],
+        coverStyle: this.rawMeetup.imageId
+          ? {
+            "--bg-url": `url(${getMeetupCoverLink(this.rawMeetup)})`
+          }
+          : undefined,
+        agenda: this.rawMeetup.agenda.map((agenda) => ({
+          ...agenda,
+          imageSrc: `/assets/icons/icon-${this.getAgendaItemIcons(agenda.type)}.svg`
+        }))
+      };
+    }
   },
 
   methods: {
-    // Получение данных с API предпочтительнее оформить отдельным методом,
-    // а не писать прямо в mounted()
-  },
+    getMeetupData() {
+      fetch(getMeetupByIDLink(MEETUP_ID))
+        .then((response) => response.json())
+        .then((data) => (this.rawMeetup = data))
+        .catch(this.errorHandler);
+    },
+    errorHandler(e) {
+      console.log(e);
+    },
+    getAgendaItemTitles(type) {
+      return agendaItemTitles[type];
+    },
+    getAgendaItemIcons(type) {
+      return agendaItemIcons[type];
+    }
+  }
 });
