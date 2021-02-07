@@ -1,10 +1,29 @@
 export const CounterButton = {
-  // Шаблон потребуется отредактировать
-  template: '<button type="button"></button>',
+  template: `
+    <button
+      type="button"
+      :count="count"
+      @click="increment(count)">
+    {{ count }}
+    </button>
+  `,
 
-  // Компонент должен иметь входной параметр
+  model: {
+    prop: "count",
+    event: "increment"
+  },
 
-  // Компонент должен иметь модель
+  props: {
+    count: {
+      type: Number,
+      default: 0,
+    },
+  },
 
-  // Шаблон лучше держать максимально простым, а логику выносить в методы
+  methods: {
+    increment(value) {
+      this.$emit("increment", value + 1);
+    },
+  },
+
 };
