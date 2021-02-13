@@ -17,23 +17,25 @@ export const MeetupsCalendar = {
           <button class="rangepicker__selector-control-right" @click="next"></button>
         </div>
       </div>
-      <div v-for="row in list" class="rangepicker__date-grid">
-        <template v-for="item in row">
-          <div v-if="item.date < first || item.date > last" class="rangepicker__cell rangepicker__cell_inactive">
-            {{ item.date.getDate() }}
-            <a v-for="meetup in item.meetups" class="rangepicker__event">{{ meetup.title }}</a>
-          </div>
-          <div v-else class="rangepicker__cell">
-            {{ item.date.getDate() }}
-            <a v-for="meetup in item.meetups" class="rangepicker__event">{{ meetup.title }}</a>
-          </div>
+      <div class="rangepicker__date-grid">
+        <template v-for="row in list">
+          <template v-for="item in row">
+            <div v-if="item.date < first || item.date > last" class="rangepicker__cell rangepicker__cell_inactive">
+              {{ item.date.getDate() }}
+              <a v-for="meetup in item.meetups" class="rangepicker__event">{{ meetup.title }}</a>
+            </div>
+            <div v-else class="rangepicker__cell">
+              {{ item.date.getDate() }}
+              <a v-for="meetup in item.meetups" class="rangepicker__event">{{ meetup.title }}</a>
+            </div>
+          </template>
         </template>
       </div>
     </div>
     </div>`,
 
   data: () => ({
-    date: new Date(),
+    date: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   }),
 
   props: {

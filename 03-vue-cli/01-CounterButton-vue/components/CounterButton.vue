@@ -1,5 +1,5 @@
 <template>
-  <button type="button" :count="count" @click="increment(count)">
+  <button type="button" @click="increment(count)">
     {{ count }}
   </button>
 </template>
