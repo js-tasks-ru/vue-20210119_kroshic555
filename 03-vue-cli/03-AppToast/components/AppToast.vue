@@ -1,13 +1,15 @@
 <template>
   <div class="toasts">
-    <div class="toast toast_success">
-      <app-icon icon="check-circle" />
-      <span>Success</span>
-    </div>
-    <div class="toast toast_error">
-      <app-icon icon="alert-circle" />
-      <span>Error</span>
-    </div>
+    <template v-for="item in messageList">
+      <div v-if="item.type === 'success'" class="toast toast_success">
+        <app-icon icon="check-circle" />
+        <span> {{ item.value }} </span>
+      </div>
+      <div v-if="item.type === 'error'" class="toast toast_error">
+        <app-icon icon="alert-circle" />
+        <span>{{ item.value }}</span>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -15,16 +17,46 @@
 import AppIcon from './AppIcon';
 
 const DELAY = 5000;
+let lastId = 0;
+const genId = () => ++lastId;
 
 export default {
   name: 'AppToast',
 
   components: { AppIcon },
 
-  methods: {
-    error(message) {},
+  data() {
+    return {
+      messageList: [],
+    };
+  },
 
-    success(message) {},
+  methods: {
+    error(message) {
+      let id = genId();
+      this.messageList.push({ id: id, value: message, type: 'error' });
+      setTimeout(
+        () =>
+          this.messageList.splice(
+            this.messageList.findIndex((it) => it.id === id),
+            1,
+          ),
+        DELAY,
+      );
+    },
+
+    success(message) {
+      let id = genId();
+      this.messageList.push({ id: id, value: message, type: 'success' });
+      setTimeout(
+        () =>
+          this.messageList.splice(
+            this.messageList.findIndex((it) => it.id === id),
+            1,
+          ),
+        DELAY,
+      );
+    },
   },
 };
 </script>
