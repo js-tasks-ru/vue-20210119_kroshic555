@@ -1,14 +1,15 @@
 <template>
-  <div :class="`dropdown ${show}`">
-    <button type="button" :class="`${toggleIconStyle.toggleIcon}`" @click="onClick">
+  <div class="dropdown" :class="{ show: isShown }">
+    <button type="button" class="button dropdown__toggle" :class="{ 'dropdown__toggle_icon' : toggle}" @click="onClick">
       <app-icon v-if="buttonIcon" :icon="buttonIcon" />
       {{ changedTitle }}
     </button>
 
-    <div :class="`dropdown__menu ${show}`">
+    <div class="dropdown__menu" :class="{ show: isShown }">
       <template v-for="item in options">
         <button
-          :class="`${toggleIconStyle.itemIcon}`"
+          class="dropdown__item"
+          :class="{ 'dropdown__item_icon' : toggle}"
           type="button"
           :value="item.value"
           :key="item.value"
@@ -32,7 +33,7 @@ export default {
 
   data() {
     return {
-      show: '',
+      isShown: false,
     };
   },
 
@@ -58,15 +59,11 @@ export default {
 
   methods: {
     onClick() {
-      if(!this.show) {
-        this.show = 'show';
-      } else {
-        this.show = '';
-      }
+      this.isShown = !this.isShown;
     },
     onChange(element) {
       this.$emit('change', element.value);
-      this.show = '';
+      this.isShown = false;
     },
   },
 
@@ -90,28 +87,18 @@ export default {
         return item.text;
       }
     },
-    toggleIconStyle() {
-      let initialToggleStyle = 'button dropdown__toggle';
-      let initialItemIcon = 'dropdown__item';
-      let flag = false;
+    toggle() {
       if (this.options) {
-        if (this.options.find((item) =>
+        if (
+          this.options.find(
+            (item) =>
               Object.prototype.hasOwnProperty.call(item, 'icon') === true,
-        )) {
-          flag = true;
+          )
+        ) {
+          return true;
         }
       }
-      if(flag) {
-        return {
-          toggleIcon: initialToggleStyle + ' dropdown__toggle_icon',
-          itemIcon: initialItemIcon + ' dropdown__item_icon',
-        };
-      } else {
-        return {
-          toggleIcon: initialToggleStyle,
-          itemIcon: initialItemIcon,
-        };
-      }
+      return false;
     },
   },
 };
