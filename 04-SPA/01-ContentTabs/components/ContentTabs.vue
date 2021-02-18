@@ -5,7 +5,9 @@
         <router-link class="content-tabs__tab" :to="item.to" :key="item.text" active-class="content-tabs__tab_active">{{ item.text }}</router-link>
       </template>
     </div>
-    <slot></slot>
+    <div class="content-tabs__content">
+      <slot />
+    </div>
   </div>
 </template>
 
