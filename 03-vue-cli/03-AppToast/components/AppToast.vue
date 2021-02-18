@@ -1,13 +1,9 @@
 <template>
   <div class="toasts">
     <template v-for="item in messageList">
-      <div v-if="item.type === 'success'" class="toast toast_success">
-        <app-icon icon="check-circle" />
+      <div :class="`toast toast_${item.type}`">
+        <app-icon :icon="`${item.icon}-circle`" />
         <span> {{ item.value }} </span>
-      </div>
-      <div v-if="item.type === 'error'" class="toast toast_error">
-        <app-icon icon="alert-circle" />
-        <span>{{ item.value }}</span>
       </div>
     </template>
   </div>
@@ -34,7 +30,7 @@ export default {
   methods: {
     error(message) {
       let id = genId();
-      this.messageList.push({ id: id, value: message, type: 'error' });
+      this.messageList.push({ id: id, value: message, type: 'error', icon: 'alert' });
       setTimeout(
         () =>
           this.messageList.splice(
@@ -47,7 +43,7 @@ export default {
 
     success(message) {
       let id = genId();
-      this.messageList.push({ id: id, value: message, type: 'success' });
+      this.messageList.push({ id: id, value: message, type: 'success', icon: 'check' });
       setTimeout(
         () =>
           this.messageList.splice(
