@@ -1,4 +1,13 @@
-<template></template>
+<template>
+  <transition-group
+    name="fade-list"
+    mode="out-in"
+    v-bind="$attrs"
+    v-on="$listeners"
+  >
+    <slot />
+  </transition-group>
+</template>
 
 <script>
 export default {
