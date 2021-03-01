@@ -1,5 +1,7 @@
 <template>
-  <base-button class="button_primary" v-on="$listeners" v-bind="$attrs"></base-button>
+  <base-button class="button_primary" v-on="$listeners" v-bind="$attrs">
+    <slot />
+  </base-button>
 </template>
 
 <script>

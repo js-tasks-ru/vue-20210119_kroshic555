@@ -30,10 +30,8 @@ export default {
     count: {
       deep: true,
       immediate: true,
-      handler(newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.count_ = newVal;
-        }
+      handler(newVal) {
+        this.count_ = newVal;
       },
     },
 

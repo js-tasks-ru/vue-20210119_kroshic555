@@ -9,7 +9,6 @@
         class="form-control"
         title="Тип"
         v-model="agendaItem_.type"
-        @change="handleChange"
       >
         <option
           v-for="item in agendaItemTypes"
@@ -53,33 +52,29 @@
       <input
         class="form-control"
         v-model="agendaItem_.title"
-        @change="handleChange"
       />
     </div>
-    <div v-if="isTalk()" class="form-group">
+    <div v-if="isTalk" class="form-group">
       <label class="form-label">Докладчик</label>
       <input
         class="form-control"
         v-model="agendaItem_.speaker"
-        @change="handleChange"
       />
     </div>
-    <div v-if="isTalk() || isOther()" class="form-group">
+    <div v-if="isTalk || isOther" class="form-group">
       <label class="form-label">Описание</label>
       <textarea
         class="form-control"
         v-model="agendaItem_.description"
-        @change="handleChange"
       ></textarea>
     </div>
-    <div v-if="isTalk()" class="form-group">
+    <div v-if="isTalk" class="form-group">
       <label class="form-label">Язык</label>
       <select class="form-control" v-model="agendaItem_.language">
         <option
           v-for="item in talkLanguages"
           :value="item.value"
           :key="item.value"
-          @change="handleChange"
         >
           {{ item.text }}
         </option>
@@ -111,7 +106,7 @@ export default {
 
   data() {
     return {
-      agendaItem_: this.agendaItem,
+      agendaItem_: null,
       agendaItemTypes: getAgendaItemTypes(),
       talkLanguages: getTalkLanguages(),
     };
@@ -125,21 +120,9 @@ export default {
   },
 
   methods: {
-    handleChange() {
-      this.$emit('update:agendaItem', this.agendaItem_);
-    },
-    isTalk() {
-      return this.agendaItem_.type === 'talk';
-    },
-    isOther() {
-      return this.agendaItem_.type === 'other';
-    },
-    isRest() {
-      return !this.isTalk() && !this.isOther();
-    },
     onStartChange(value) {
-      let startsAtMinutes = parseInt(this.agendaItem.startsAt.split(':')[0]) * 60 + parseInt(this.agendaItem.startsAt.split(':')[1]);
-      let endsAtMinutes = parseInt(this.agendaItem.endsAt.split(':')[0]) * 60 + parseInt(this.agendaItem.endsAt.split(':')[1]);
+      let startsAtMinutes = parseInt(this.agendaItem_.startsAt.split(':')[0]) * 60 + parseInt(this.agendaItem_.startsAt.split(':')[1]);
+      let endsAtMinutes = parseInt(this.agendaItem_.endsAt.split(':')[0]) * 60 + parseInt(this.agendaItem_.endsAt.split(':')[1]);
       let valueMinutes = parseInt(value.split(':')[0]) * 60 + parseInt(value.split(':')[1]);
       let interval = endsAtMinutes - startsAtMinutes;
 
@@ -153,25 +136,52 @@ export default {
 
       this.agendaItem_.startsAt = value;
       this.agendaItem_.endsAt = hoursString + ':' + minutesString;
-
-      this.handleChange();
     },
     onEndChange(newValue) {
       this.agendaItem_.endsAt = newValue;
-      this.handleChange();
+    },
+    deepEqual(a, b) {
+      return JSON.stringify(a) === JSON.stringify(b);
     },
   },
 
   computed: {
     title() {
-      return this.isTalk()
+      return this.isTalk
         ? 'Тема'
-        : this.isOther()
+        : this.isOther
         ? 'Заголовок'
         : 'Нестандартный текст (необязательно)';
     },
+    isTalk() {
+      return this.agendaItem_.type === 'talk';
+    },
+    isOther() {
+      return this.agendaItem_.type === 'other';
+    },
+    isRest() {
+      return !this.isTalk && !this.isOther;
+    },
   },
 
+  watch: {
+    agendaItem: {
+      deep: true,
+      immediate: true,
+      handler(newValue) {
+        let newValCopy = { ...newValue };
+        if (!this.deepEqual(newValCopy, this.agendaItem_)) {
+          this.agendaItem_ = newValCopy;
+        }
+      },
+    },
+    agendaItem_: {
+      deep: true,
+      handler(newValue) {
+        this.$emit('update:agendaItem', { ...newValue });
+      },
+    },
+  },
 };
 </script>
 

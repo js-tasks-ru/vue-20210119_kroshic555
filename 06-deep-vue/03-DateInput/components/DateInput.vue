@@ -1,5 +1,5 @@
 <template>
-  <AppInput :value="getValue" :type="type" @change="onChange($event)">
+  <AppInput :value="value_" :type="type" @change="onChange($event)">
     <!-- Так можно передать все слоты в дочерний компонент -->
     <template v-for="slot of Object.keys($slots)" v-slot:[slot]>
       <slot :name="slot" />
@@ -30,8 +30,13 @@ export default {
 
   methods: {
     onChange(event) {
-      this.$emit('update:valueAsDate', event.target.valueAsDate);
-      this.$emit('update:valueAsNumber', event.target.valueAsNumber);
+      if (event.target.type !== 'datetime-local') {
+        this.$emit('update:valueAsDate', event.target.valueAsDate);
+        this.$emit('update:valueAsNumber', event.target.valueAsNumber);
+      } else {
+        this.$emit('update:valueAsDate', this.dateLocalConvert(event.target.valueAsNumber));
+        this.$emit('update:valueAsNumber', event.target.valueAsNumber);
+      }
     },
     timeConvert(num) {
       let date = new Date(num);
@@ -46,23 +51,28 @@ export default {
       return this.dateLocalFormat(date);
     },
     dateToTimeFormat(date) {
-      return date.getUTCHours() + ':' + date.getUTCMinutes();
+      let hours = date.getUTCHours();
+      let minutes = date.getUTCMinutes();
+      let seconds = date.getUTCSeconds();
+      let hoursFormat = hours < 10 ? '0' + hours : hours;
+      let minutesFormat = minutes < 10 ? '0' + minutes : minutes;
+      let secondsFormat = seconds < 10 ? '0' + seconds : seconds;
+      if (this.$attrs.step && this.$attrs.step % 60 !== 0) {
+        return hoursFormat + ':' + minutesFormat + ':' + secondsFormat;
+      } else {
+        return hoursFormat + ':' + minutesFormat;
+      }
     },
     dateFormat(date) {
-      return date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate();
+      let year = date.getUTCFullYear();
+      let month = date.getUTCMonth() + 1;
+      let day = date.getUTCDate();
+      let monthFormat = month < 10 ? '0' + month : month;
+      let dayFormat = day < 10 ? '0' + day : day;
+      return [year, monthFormat, dayFormat].join('-');
     },
     dateLocalFormat(date) {
-      return (
-        date.getFullYear() +
-        '-' +
-        date.getMonth() +
-        '-' +
-        date.getDate() +
-        'T' +
-        date.getUTCHours() +
-        ':' +
-        date.getUTCMonth()
-      );
+      return this.dateFormat(date) + 'T' + this.dateToTimeFormat(date);
     },
     handleNumber() {
       switch (this.type) {
@@ -81,13 +91,13 @@ export default {
         case 'date':
           return this.dateFormat(this.valueAsDate);
         case 'datetime-local':
-          return this.dateLocalConvert(this.valueAsNumber);
+          return this.dateLocalConvert(this.valueAsDate);
       }
     },
   },
 
   computed: {
-    getValue() {
+    value_() {
       if (this.valueAsNumber && this.valueAsDate) {
         return this.handleNumber();
       } else if (this.valueAsNumber) {
