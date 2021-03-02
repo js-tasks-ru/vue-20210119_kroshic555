@@ -30,13 +30,12 @@ export default {
 
   methods: {
     onChange(event) {
-      if (event.target.type !== 'datetime-local') {
-        this.$emit('update:valueAsDate', event.target.valueAsDate);
-        this.$emit('update:valueAsNumber', event.target.valueAsNumber);
+      if (event.target.type === 'datetime-local') {
+        this.$emit('update:valueAsDate', new Date(event.target.valueAsNumber));
       } else {
-        this.$emit('update:valueAsDate', this.dateLocalConvert(event.target.valueAsNumber));
-        this.$emit('update:valueAsNumber', event.target.valueAsNumber);
+        this.$emit('update:valueAsDate', event.target.valueAsDate);
       }
+      this.$emit('update:valueAsNumber', event.target.valueAsNumber);
     },
     timeConvert(num) {
       let date = new Date(num);
