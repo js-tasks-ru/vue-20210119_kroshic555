@@ -1,12 +1,9 @@
 <template>
-  <calendar-view>
-    <!--
-    <calendar-view-event
-      tag="router-link"
-      :to="{ name: 'meetup', params: { meetupId: meetup.id } }"
-      >{{ meetup.title }}</calendar-view-event
-    >
-    -->
+  <calendar-view :meetups="meetups" v-slot="{ meetup }">
+      <calendar-view-event
+        tag="router-link"
+        :to="{ name: 'meetup', params: { meetupId: meetup.id } }"
+        >{{ meetup.title }}</calendar-view-event>
   </calendar-view>
 </template>
 
